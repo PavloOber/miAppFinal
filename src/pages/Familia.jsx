@@ -179,7 +179,7 @@ const Familia = () => {
   const otherFamiliares = familiares.filter((f) => f.id !== editingId);
 
   return (
-    <div className="mx-auto p-4 w-full">
+    <div className="familia-page-background p-4">
       <h2 className="text-2xl font-bold mb-4">Miembros de la Familia</h2>
 
       {/* Show Add button only if form is not visible */}
@@ -417,9 +417,9 @@ const Familia = () => {
 
       <h3 className="text-xl font-semibold mb-3 mt-6">Lista de Familiares</h3>
       {familiares.length > 0 ? (
-        <div className="flex flex-wrap gap-4 justify-start">
+        <div className="familia-cards-container">
           {familiares.map((miembro) => (
-            <div key={miembro.id} className="border p-4 rounded shadow bg-white" style={{ position: 'relative', width: '300px' }}>
+            <div key={miembro.id} className="familia-card-item border p-4 rounded shadow bg-white">
               {/* Buttons container top-right */}
               <div className="familia-card-actions">
                 <button

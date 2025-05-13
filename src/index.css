@@ -24,15 +24,18 @@ a:hover {
 
 body {
   margin: 0;
-  /* display: flex; */ /* Comentado por si causa problemas de layout */
-  /* place-items: center; */ /* Comentado por si causa problemas de layout */
+  display: flex; /* Restaurado */
+  place-items: center; /* Restaurado */
   min-width: 320px;
   min-height: 100vh;
-  background-image: url('./fotos/fondo.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  /* Estilos de fondo eliminados de aquí */
+}
+
+#root {
+  width: 100vw; /* Ocupa todo el ancho de la ventana */
+  min-height: 100vh; /* Ocupa toda la altura de la ventana */
+  display: flex;
+  flex-direction: column; /* Permite que App.jsx y sus hijos se expandan verticalmente */
 }
 
 h1 {
@@ -78,4 +81,30 @@ button:focus-visible {
   right: 8px;  /* O la distancia que prefieras desde la derecha */
   display: flex;
   gap: 4px;    /* Espacio entre los botones */
+}
+
+/* Styles for the container of family cards */
+.familia-cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px; /* Equivalent to Tailwind's gap-4 (4 * 4px = 16px) */
+  justify-content: flex-start;
+}
+
+/* Styles for individual family card items */
+.familia-card-item {
+  position: relative;
+  width: 300px;
+  /* Tailwind classes like border, p-4, rounded, shadow, bg-white will still apply from JSX */
+}
+
+/* Background for the Familia page */
+.familia-page-background {
+  background-image: url('./fotos/fondo.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh; /* Asegura que el fondo cubra toda la altura */
+  width: 100%; /* Asegura que el fondo cubra todo el ancho */
 }
