@@ -47,7 +47,8 @@ const Familia = () => {
         // Ensure all fields exist, even if they were added later
         setFormState({
             ...initialFormState, // Start with defaults
-             fechaNacimiento: familiarToEdit.fechaNacimiento || '',
+            ...familiarToEdit,
+             fechaNacimiento: familiarToEdit.fechaNacimiento ? familiarToEdit.fechaNacimiento.split('T')[0] : '',
              pais: familiarToEdit.pais || '',
              ciudad: familiarToEdit.ciudad || '',
              padresIds: familiarToEdit.padresIds || [],
@@ -144,6 +145,11 @@ const Familia = () => {
       setIsFormVisible(true); // Show empty form
   };
 
+  const handleDelete = (id) => {
+    if (window.confirm("¿Estás seguro de que quieres borrar a este familiar?")) {
+      deleteFamiliar(id);
+    }
+  };
   // Filter out the current person being edited from potential parents/children list
   const otherFamiliares = familiares.filter(f => f.id !== editingId);
 
@@ -173,24 +179,24 @@ const Familia = () => {
              {/* ... (Input fields remain the same as previous version) ... */}
              <div className="mb-3">
               <label htmlFor="nombre" className="block text-sm font-medium text-gray-700">Nombre:</label>
-              <input type="text" id="nombre" name="nombre" value={formState.nombre} onChange={handleInputChange} required className="input-style" />
+              <input type="text" id="nombre" name="nombre" value={formState.nombre} onChange={handleInputChange} required className="input-style" style={{ color: 'black' }}/>
             </div>
             <div className="mb-3">
               <label htmlFor="apellido" className="block text-sm font-medium text-gray-700">Apellido:</label>
-              <input type="text" id="apellido" name="apellido" value={formState.apellido} onChange={handleInputChange} required className="input-style" />
+              <input type="text" id="apellido" name="apellido" value={formState.apellido} onChange={handleInputChange} required className="input-style" style={{ color: 'black' }}/>
             </div>
             <div className="mb-3">
               <label htmlFor="fechaNacimiento" className="block text-sm font-medium text-gray-700">Fecha de Nacimiento:</label>
-              <input type="date" id="fechaNacimiento" name="fechaNacimiento" value={formState.fechaNacimiento} onChange={handleInputChange} required className="input-style" />
+              <input type="date" id="fechaNacimiento" name="fechaNacimiento" value={formState.fechaNacimiento} onChange={handleInputChange} required className="input-style" style={{ color: 'black' }}/>
             </div>
              {/* Status field removed */}
             <div className="mb-3">
               <label htmlFor="pais" className="block text-sm font-medium text-gray-700">País:</label>
-              <input type="text" id="pais" name="pais" value={formState.pais} onChange={handleInputChange} className="input-style" />
+              <input type="text" id="pais" name="pais" value={formState.pais} onChange={handleInputChange} className="input-style" style={{ color: 'black' }}/>
             </div>
             <div className="mb-3">
               <label htmlFor="ciudad" className="block text-sm font-medium text-gray-700">Ciudad:</label>
-              <input type="text" id="ciudad" name="ciudad" value={formState.ciudad} onChange={handleInputChange} className="input-style" />
+              <input type="text" id="ciudad" name="ciudad" value={formState.ciudad} onChange={handleInputChange} className="input-style" style={{ color: 'black' }}/>
             </div>
             {/* File Input for Photo */}
             <div className="mb-3">
@@ -298,13 +304,13 @@ const Familia = () => {
                        >
                          Editar
                        </button>
-                    <button 
-                        onClick={() => deleteFamiliar(miembro.id)} // Delete button
-                        className="bg-red-500 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded"
-                        aria-label={`Eliminar ${miembro.nombre} ${miembro.apellido}`}
-                    >
-                        X
-                    </button>
+                       <button 
+    onClick={() => handleDelete(miembro.id)} 
+    className="bg-red-500 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded"
+    aria-label={`Eliminar ${miembro.nombre} ${miembro.apellido}`}
+>
+    X
+</button>
                 </div>
               
                 {/* Member details */}
