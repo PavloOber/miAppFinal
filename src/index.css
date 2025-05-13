@@ -151,3 +151,27 @@ button:focus-visible {
   margin-top: 10px; /* Espacio arriba */
   margin-bottom: 10px; /* Espacio abajo */
 }
+
+/* Filas de Ingreso en la tabla de Gastos */
+.gastos-page-background .table > tbody > tr.ingreso-row > td,
+.gastos-page-background .table > tbody > tr.ingreso-row:hover > td {
+  background-color: rgba(144, 238, 144, 0.7); /* Verde claro con 30% de opacidad */
+}
+
+/* Texto oscuro para filas de ingreso, incluyendo botones dentro */
+.gastos-page-background .table > tbody > tr.ingreso-row > td,
+.gastos-page-background .table > tbody > tr.ingreso-row > td button {
+  color: #1a1a1a; /* Un color de texto oscuro */
+}
+
+/* Filas de Gasto en la tabla de Gastos */
+.gastos-page-background .table > tbody > tr.gasto-row > td,
+.gastos-page-background .table > tbody > tr.gasto-row:hover > td {
+  background-color: rgba(255, 182, 193, 0.7); /* Rojo claro (lightpink) con 30% de opacidad */
+}
+
+/* Texto oscuro para filas de gasto, incluyendo botones dentro */
+.gastos-page-background .table > tbody > tr.gasto-row > td,
+.gastos-page-background .table > tbody > tr.gasto-row > td button {
+  color: #1a1a1a; /* Un color de texto oscuro */
+}

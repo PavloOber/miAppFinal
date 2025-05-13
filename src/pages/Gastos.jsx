@@ -202,19 +202,27 @@ const Gastos = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {monthData.items.map(item => (
-                          <tr key={item.id}>
-                            <td>{item.tipo}</td>
-                            <td>{item.descripcion}</td>
-                            <td>{item.cantidad.toFixed(2)}</td>
-                            <td>{item.fecha.split('-')[2]}</td> 
-                            <td>
-                              <Button variant="danger" size="sm" onClick={() => deleteItem(item.id)}>
-                                Eliminar
-                              </Button>
-                            </td> 
-                          </tr>
-                        ))}
+                        {monthData.items.map((item) => {
+                          let rowClass = "";
+                          if (item.tipo.includes("Ingreso")) {
+                            rowClass = "ingreso-row";
+                          } else if (item.tipo.includes("Gasto")) {
+                            rowClass = "gasto-row";
+                          }
+                          return (
+                            <tr key={item.id} className={rowClass}>
+                              <td>{item.tipo}</td>
+                              <td>{item.descripcion}</td>
+                              <td>{item.cantidad.toFixed(2)}</td>
+                              <td>{item.fecha.split('-')[2]}</td>
+                              <td>
+                                <Button variant="danger" size="sm" onClick={() => deleteItem(item.id)}>
+                                  Eliminar
+                                </Button>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </Table>
                     <div className="resumenMes">
