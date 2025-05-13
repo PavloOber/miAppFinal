@@ -108,3 +108,46 @@ button:focus-visible {
   min-height: 100vh; /* Asegura que el fondo cubra toda la altura */
   width: 100%; /* Asegura que el fondo cubra todo el ancho */
 }
+
+.gastos-page-background {
+  background-image: url('./fotos/Gastos.jpg'); /* Ruta a tu imagen de Gastos */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* Para que el fondo no se desplace con el contenido */
+  min-height: 100vh; /* Asegura que el fondo cubra toda la altura */
+  width: 100%; /* Asegura que el fondo cubra todo el ancho */
+}
+
+/* Estilos para encabezados en la página de Gastos */
+.gastos-page-background h2,
+.gastos-page-background h3,
+.gastos-page-background h4 {
+  background-color: rgba(0, 0, 0, 0.5); /* Negro con 50% de opacidad */
+  color: white; /* Texto blanco para contraste */
+  padding: 8px 12px; /* Un poco de padding alrededor del texto */
+  border-radius: 5px; /* Bordes redondeados */
+  display: inline-block; /* Para que el fondo solo ocupe el texto más el padding */
+  margin-top: 10px; /* Espacio arriba */
+  margin-bottom: 10px; /* Espacio abajo */
+}
+
+.resumenMes {
+  background-color: rgba(10, 60, 228, 0.5); /* Negro con 50% de opacidad */
+  color: white; /* Texto blanco para contraste */
+  padding: 8px 12px; /* Un poco de padding alrededor del texto */
+  border-radius: 5px; /* Bordes redondeados */
+  display: inline-block; /* Para que el fondo solo ocupe el texto más el padding */
+  margin-top: 10px; /* Espacio arriba */
+  margin-bottom: 10px; /* Espacio abajo */
+}
+
+.resumenAnual {
+  background-color: rgba(20, 201, 14, 0.5); /* Negro con 50% de opacidad */
+  color: white; /* Texto blanco para contraste */
+  padding: 8px 12px; /* Un poco de padding alrededor del texto */
+  border-radius: 5px; /* Bordes redondeados */
+  display: inline-block; /* Para que el fondo solo ocupe el texto más el padding */
+  margin-top: 10px; /* Espacio arriba */
+  margin-bottom: 10px; /* Espacio abajo */
+}

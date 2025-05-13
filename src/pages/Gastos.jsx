@@ -119,7 +119,7 @@ const Gastos = () => {
   // --- End Data Processing ---
 
   return (
-    <div>
+    <div className="gastos-page-background"> {/* Apply background class here */}
       <h2>Registrar Gasto/Ingreso</h2>
       <Form onSubmit={handleSubmit}>
   <Row className="mb-3">
@@ -217,7 +217,7 @@ const Gastos = () => {
                         ))}
                       </tbody>
                     </Table>
-                    <div style={{ marginTop: '0.5em', fontWeight: 'bold' }}>
+                    <div className="resumenMes">
                        Resumen {monthName}: 
                        Ingresos: {monthData.summary.income.toFixed(2)} | 
                        Gastos: {monthData.summary.expenses.toFixed(2)} | 
@@ -226,7 +226,7 @@ const Gastos = () => {
                   </div>
                 );
               })}
-              <div style={{ marginTop: '1em', fontWeight: 'bold', borderTop: '1px solid #ccc', paddingTop: '0.5em' }}>
+              <div className="resumenAnual" style={{ marginTop: '1em', fontWeight: 'bold', borderTop: '1px solid #ccc', paddingTop: '0.5em' }}>
                  Resumen Anual {year}: 
                  Ingresos: {yearData.yearSummary.income.toFixed(2)} | 
                  Gastos: {yearData.yearSummary.expenses.toFixed(2)} | 
