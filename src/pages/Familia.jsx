@@ -29,7 +29,6 @@ const Familia = () => {
     nombre: '',
     apellido: '',
     fechaNacimiento: '',
-    // status: 'Hijo/a', // Removed status
     pais: '',
     ciudad: '',
     padresIds: [],
@@ -227,7 +226,7 @@ const Familia = () => {
                     onChange={handleInputChange} 
                     className="input-style"
                  >
-                     <option value="">-- Ninguno --</option> {/* Option for no selection */}
+                     <option value="">-- No seleccionado --</option> {/* Option for no selection */}
                     {otherFamiliares.map(f => (
                         <option key={f.id} value={f.id}>{f.nombre} {f.apellido}</option>
                     ))}
@@ -241,10 +240,11 @@ const Familia = () => {
                     id="padresIds" 
                     name="padresIds" 
                     multiple={true} 
-                    value={formState.padresIds.map(String)} // Value needs to be array of strings for multi-select
+                    value={formState.padresIds === null ? '' : formState.padresIds} // Value needs to be array of strings for multi-select
                     onChange={handleMultiSelectChange} 
                     className="input-style h-24"
                  >
+                 <option value="">-- No seleccionado --</option>
                     {otherFamiliares.map(f => (
                         <option key={f.id} value={f.id}>{f.nombre} {f.apellido}</option>
                     ))}
@@ -256,10 +256,11 @@ const Familia = () => {
                     id="hijosIds" 
                     name="hijosIds" 
                     multiple={true} 
-                    value={formState.hijosIds.map(String)} 
+                    value={formState.hijosIds === null ? '' : formState.hijosIds} 
                     onChange={handleMultiSelectChange} 
                     className="input-style h-24"
                 >
+                <option value="">-- No seleccionado --</option>
                     {otherFamiliares.map(f => (
                         <option key={f.id} value={f.id}>{f.nombre} {f.apellido}</option>
                     ))}
