@@ -1,5 +1,10 @@
 import { useState, useContext, useMemo } from "react"; // Add useMemo
 import { GastosContext } from "../context/gastosContext"; 
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Table from 'react-bootstrap/Table'; // Add Table import
 
 // Helper function to get month name in Spanish
 const getMonthName = (monthIndex) => {
@@ -116,40 +121,58 @@ const Gastos = () => {
   return (
     <div>
       <h2>Registrar Gasto/Ingreso</h2>
-      {/* Form remains the same */}
-      <form onSubmit={handleSubmit}>
-         {/* ... form inputs ... */}
-        <select name="tipo" value={form.tipo} onChange={handleChange}>
-          <option value="Gasto">Gasto</option>
-          <option value="Ingreso">Ingreso</option>
-          <option value="Gasto Fijo">Gasto Fijo</option>
-          <option value="Ingreso Fijo">Ingreso Fijo</option>
-        </select>
-        <input
-          name="descripcion"
-          value={form.descripcion}
-          onChange={handleChange}
-          placeholder="Descripción"
-          required
-        />
-        <input
-          type="number"
-          name="cantidad"
-          value={form.cantidad}
-          onChange={handleChange}
-          placeholder="Cantidad"
-          step="0.01" 
-          required
-        />
-        <input
-          type="date"
-          name="fecha"
-          value={form.fecha}
-          onChange={handleChange}
-          required
-        />
-        <button type="submit">Agregar</button>
-      </form>
+      <Form onSubmit={handleSubmit}>
+  <Row className="mb-3">
+    <Form.Group as={Col} controlId="formGridTipo">
+      <Form.Label>Tipo</Form.Label>
+      <Form.Select name="tipo" value={form.tipo} onChange={handleChange}>
+        <option value="Gasto">Gasto</option>
+        <option value="Ingreso">Ingreso</option>
+        <option value="Gasto Fijo">Gasto Fijo</option>
+        <option value="Ingreso Fijo">Ingreso Fijo</option>
+      </Form.Select>
+    </Form.Group>
+
+    <Form.Group as={Col} controlId="formGridFecha">
+      <Form.Label>Fecha</Form.Label>
+      <Form.Control
+        type="date"
+        name="fecha"
+        value={form.fecha}
+        onChange={handleChange}
+        required
+      />
+    </Form.Group>
+  </Row>
+
+  <Form.Group className="mb-3" controlId="formGridDescripcion">
+    <Form.Label>Descripción</Form.Label>
+    <Form.Control
+      name="descripcion"
+      value={form.descripcion}
+      onChange={handleChange}
+      placeholder="Descripción"
+      required
+    />
+  </Form.Group>
+
+  <Form.Group className="mb-3" controlId="formGridCantidad">
+    <Form.Label>Cantidad</Form.Label>
+    <Form.Control
+      type="number"
+      name="cantidad"
+      value={form.cantidad}
+      onChange={handleChange}
+      placeholder="Cantidad"
+      step="0.01"
+      required
+    />
+  </Form.Group>
+
+  <Button variant="primary" type="submit">
+    Agregar
+  </Button>
+</Form>
 
       <h2>Historial</h2>
       {sortedYears.length === 0 ? (
@@ -168,13 +191,13 @@ const Gastos = () => {
                 return (
                   <div key={monthIndex} style={{ marginLeft: '1em', marginBottom: '1.5em' }}>
                     <h4>{monthName}</h4>
-                    <table>
+                    <Table striped bordered hover responsive size="sm">
                       <thead>
                         <tr>
                           <th>Tipo</th>
                           <th>Descripción</th>
                           <th>Cantidad</th>
-                          <th>Fecha</th>
+                          <th>Día</th>
                           <th>Acción</th>
                         </tr>
                       </thead>
@@ -184,17 +207,16 @@ const Gastos = () => {
                             <td>{item.tipo}</td>
                             <td>{item.descripcion}</td>
                             <td>{item.cantidad.toFixed(2)}</td>
-                            {/* Display only day for items within the month table */}
                             <td>{item.fecha.split('-')[2]}</td> 
                             <td>
-                              <button onClick={() => deleteItem(item.id)} style={{ /* Add some basic styling if needed */ }}>
+                              <Button variant="danger" size="sm" onClick={() => deleteItem(item.id)}>
                                 Eliminar
-                              </button>
+                              </Button>
                             </td> 
                           </tr>
                         ))}
                       </tbody>
-                    </table>
+                    </Table>
                     <div style={{ marginTop: '0.5em', fontWeight: 'bold' }}>
                        Resumen {monthName}: 
                        Ingresos: {monthData.summary.income.toFixed(2)} | 

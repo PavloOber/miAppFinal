@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useFamilia } from "../context/familiaContext";
+import Image from 'react-bootstrap/Image'; // Add Image import
 
 // Helper function to calculate age
 const calculateAge = (birthDate) => {
@@ -178,7 +179,7 @@ const Familia = () => {
   const otherFamiliares = familiares.filter((f) => f.id !== editingId);
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="mx-auto p-4 w-full">
       <h2 className="text-2xl font-bold mb-4">Miembros de la Familia</h2>
 
       {/* Show Add button only if form is not visible */}
@@ -416,16 +417,13 @@ const Familia = () => {
 
       <h3 className="text-xl font-semibold mb-3 mt-6">Lista de Familiares</h3>
       {familiares.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex flex-wrap gap-4 justify-start">
           {familiares.map((miembro) => (
-            <div
-              key={miembro.id}
-              className="border p-4 rounded shadow relative bg-white"
-            >
+            <div key={miembro.id} className="border p-4 rounded shadow bg-white" style={{ position: 'relative', width: '300px' }}>
               {/* Buttons container top-right */}
-              <div className="absolute top-2 right-2 flex space-x-1">
+              <div className="familia-card-actions">
                 <button
-                  onClick={() => handleEdit(miembro.id)} // Edit button
+                  onClick={() => handleEdit(miembro.id)}
                   className="bg-yellow-500 hover:bg-yellow-700 text-white text-xs font-bold py-1 px-2 rounded"
                   aria-label={`Editar ${miembro.nombre} ${miembro.apellido}`}
                 >
@@ -440,34 +438,52 @@ const Familia = () => {
                 </button>
               </div>
 
-              {/* Member details */}
-              <div className="flex items-center mb-2">
-                {/* Display Photo or Placeholder */}
+              {/* Member Photo */}
+              <div className="text-center mb-3">
                 {miembro.fotoBase64 ? (
-                  <img
+                  <Image
                     src={miembro.fotoBase64}
                     alt={`${miembro.nombre} ${miembro.apellido}`}
-                    className="h-12 w-12 rounded-full object-cover mr-3 border"
+                    style={{
+                      width: '300px',
+                      height: '300px',
+                      objectFit: 'cover',
+                      margin: '0 auto' // Centrar la imagen si es un bloque
+                    }}
+                    thumbnail 
                   />
                 ) : (
-                  <div className="h-12 w-12 rounded-full bg-gray-300 mr-3 flex items-center justify-center text-gray-500 text-xs border">
-                    <span>Foto</span>
+                  <div
+                    style={{
+                      width: '300px',
+                      height: '300px',
+                      backgroundColor: '#e9ecef',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '1px solid #dee2e6',
+                      borderRadius: '0.25rem',
+                      margin: '0 auto' // Centrar el placeholder
+                    }}
+                  >
+                    <span style={{ color: '#6c757d', fontSize: '1rem' }}>Foto</span>
                   </div>
                 )}
-                <div>
-                  <h4 className="font-bold text-lg leading-tight">
-                    {miembro.nombre} {miembro.apellido}
-                  </h4>
-                  {/* Display Conyuge if exists */}
-                  {miembro.conyugeId && (
-                    <p className="text-sm text-gray-600 leading-tight">
-                      Esposo/a: {getFamiliarNameById(miembro.conyugeId)}
-                    </p>
-                  )}
-                </div>
               </div>
 
-              <p className="text-sm text-gray-600">
+              {/* Member details */}
+              <div className="text-center">
+                <h4 className="font-bold text-lg leading-tight">
+                  {miembro.nombre} {miembro.apellido}
+                </h4>
+                {miembro.conyugeId && (
+                  <p className="text-sm text-gray-600 leading-tight">
+                    Esposo/a: {getFamiliarNameById(miembro.conyugeId)}
+                  </p>
+                )}
+              </div>
+              
+              <p className="text-sm text-gray-600 mt-2">
                 Nacimiento: {miembro.fechaNacimiento} (Edad:{" "}
                 {calculateAge(miembro.fechaNacimiento)})
               </p>

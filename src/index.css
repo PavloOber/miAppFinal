@@ -24,10 +24,15 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  /* display: flex; */ /* Comentado por si causa problemas de layout */
+  /* place-items: center; */ /* Comentado por si causa problemas de layout */
   min-width: 320px;
   min-height: 100vh;
+  background-image: url('./fotos/fondo.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 h1 {
@@ -65,4 +70,12 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+.familia-card-actions {
+  position: absolute;
+  bottom: 8px; /* O la distancia que prefieras desde abajo */
+  right: 8px;  /* O la distancia que prefieras desde la derecha */
+  display: flex;
+  gap: 4px;    /* Espacio entre los botones */
 }

@@ -40,3 +40,11 @@
 .read-the-docs {
   color: #888;
 }
+
+.familia-card-actions {
+  position: absolute;
+  bottom: 8px; /* O la distancia que prefieras desde abajo */
+  right: 8px;  /* O la distancia que prefieras desde la derecha */
+  display: flex;
+  gap: 4px;    /* Espacio entre los botones */
+}
