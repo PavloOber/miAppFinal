@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/authContext";
 import { GastosProvider } from "./context/gastosContext"; 
+import { FamiliaProvider } from './context/familiaContext'; 
 import AuthGuard from "./utils/authGuard";
 import PublicOnlyGuard from "./utils/PublicOnlyGuard"; 
 
@@ -14,41 +15,41 @@ import Register from "./pages/Register";
 function App() {
   return (
     <AuthProvider>
-      {/* GastosProvider provides shared expense data to authenticated routes */}
-      <GastosProvider>
-        <Router>
-          <Navbar />
-          <Routes>
-            {/* Public route */}
-            <Route path="/" element={<Home />} />
+      <Router>
+        <Navbar />
+        {/* Place providers here so context is available to all routes below */}
+        <GastosProvider>
+          <FamiliaProvider>
+            <Routes>
+              {/* --- Public Routes --- */}
+              <Route path="/" element={<Home />} />
 
-            {/* Routes only for non-authenticated users */}
-            <Route
-              path="/login"
-              element={<PublicOnlyGuard><Login /></PublicOnlyGuard>}
-            />
-            <Route
-              path="/register"
-              element={<PublicOnlyGuard><Register /></PublicOnlyGuard>}
-            />
+              {/* --- Routes only for non-authenticated users --- */}
+              <Route
+                path="/login"
+                element={<PublicOnlyGuard><Login /></PublicOnlyGuard>}
+              />
+              <Route
+                path="/register"
+                element={<PublicOnlyGuard><Register /></PublicOnlyGuard>}
+              />
 
-            {/* Routes only for authenticated users (now have access to GastosContext) */}
-            <Route
-              path="/gastos"
-              element={<AuthGuard><Gastos /></AuthGuard>}
-            />
-            <Route
-              path="/familia"
-              element={<AuthGuard><Familia /></AuthGuard>}
-            />
+              {/* --- Routes only for authenticated users --- */}
+              <Route
+                path="/gastos"
+                element={<AuthGuard><Gastos /></AuthGuard>}
+              />
+              <Route
+                path="/familia"
+                element={<AuthGuard><Familia /></AuthGuard>}
+              />
 
-            {/* Add other routes and decide protection level */}
-
-            {/* Optional: Catch-all route for 404 or redirect */}
-            {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
-          </Routes>
-        </Router>
-      </GastosProvider>
+              {/* Optional: Catch-all route for 404 or redirect */}
+              {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
+            </Routes>
+          </FamiliaProvider>
+        </GastosProvider>
+      </Router>
     </AuthProvider>
   );
 }
