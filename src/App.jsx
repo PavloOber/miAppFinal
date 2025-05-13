@@ -11,15 +11,16 @@ import Familia from "./pages/Familia";
 import Gastos from "./pages/Gastos";
 import Login from "./pages/Login";
 import Register from "./pages/Register"; 
+import NotFoundPage from "./components/NotFoundPage"; // Import NotFoundPage 
 
 function App() {
   return (
     <AuthProvider>
+        <GastosProvider>
+          <FamiliaProvider>
       <Router>
         <Navbar />
         {/* Place providers here so context is available to all routes below */}
-        <GastosProvider>
-          <FamiliaProvider>
             <Routes>
               {/* --- Public Routes --- */}
               <Route path="/" element={<Home />} />
@@ -45,11 +46,11 @@ function App() {
               />
 
               {/* Optional: Catch-all route for 404 or redirect */}
-              {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
+      </Router>
           </FamiliaProvider>
         </GastosProvider>
-      </Router>
     </AuthProvider>
   );
 }

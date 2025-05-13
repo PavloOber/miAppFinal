@@ -15,6 +15,7 @@ const Login = () => {
     e.preventDefault(); // Prevent form submission from reloading page
     setError(""); // Clear previous errors
 
+
     if (!email || !password) {
         setError("Por favor, ingresa email y contraseña.");
         return;
