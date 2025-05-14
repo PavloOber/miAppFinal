@@ -7,7 +7,7 @@ import AuthGuard from "./utils/authGuard";
 import PublicOnlyGuard from "./utils/PublicOnlyGuard";
 
 import Navbar from "./components/Navbar";
-import Home from "./pages/home";
+import Home from "./pages/Home";
 import Familia from "./pages/Familia";
 import Gastos from "./pages/Gastos";
 import Login from "./pages/Login";

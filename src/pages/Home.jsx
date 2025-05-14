@@ -48,11 +48,6 @@ const Home = () => {
 
   return (
     <div className="home-page-background">
-      <img
-        src="./fotos/unaFamilia.png"
-        alt="Familia"
-        className="home-background-image"
-      />
       <div className="home-content">
         <h1 className="home-title">Bienvenidos a la página familiar</h1>
         <p className="home-text">
