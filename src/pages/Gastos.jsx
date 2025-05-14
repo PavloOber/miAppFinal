@@ -183,13 +183,13 @@ const Gastos = () => {
           const sortedMonths = Object.keys(yearData.months).sort((a, b) => parseInt(a) - parseInt(b));
 
           return (
-            <div key={year} style={{ marginBottom: '2em' }}>
+            <div key={year} className="gastos-year-container">
               <h3>Año: {year}</h3>
               {sortedMonths.map(monthIndex => {
                 const monthData = yearData.months[monthIndex];
                 const monthName = getMonthName(parseInt(monthIndex)); 
                 return (
-                  <div key={monthIndex} style={{ marginLeft: '1em', marginBottom: '1.5em' }}>
+                  <div key={monthIndex} className="gastos-month-container">
                     <h4>{monthName}</h4>
                     <Table striped bordered hover responsive size="sm">
                       <thead>
@@ -234,7 +234,7 @@ const Gastos = () => {
                   </div>
                 );
               })}
-              <div className="resumenAnual" style={{ marginTop: '1em', fontWeight: 'bold', borderTop: '1px solid #ccc', paddingTop: '0.5em' }}>
+              <div className="resumenAnual gastos-annual-summary">
                  Resumen Anual {year}: 
                  Ingresos: {yearData.yearSummary.income.toFixed(2)} | 
                  Gastos: {yearData.yearSummary.expenses.toFixed(2)} | 

@@ -39,10 +39,10 @@ const Familia = () => {
       fechaNacimiento: "",
       pais: "",
       ciudad: "",
-      padresIds: [],
-      hijosIds: [],
-      conyugeId: null, // Add conyugeId, default to null
-      fotoBase64: null, // Add photo field
+      padresIds: null,
+      hijosIds: null,
+      conyugeId: null,
+      fotoBase64: null,
     }),
     []
   ); // Empty dependency array means it's created only once
@@ -120,21 +120,17 @@ const Familia = () => {
     const { name, options } = e.target;
     const selectedIds = [];
     for (let i = 0, l = options.length; i < l; i++) {
-      if (options[i].selected) {
+      if (options[i].selected && options[i].value !== '') {
         selectedIds.push(parseInt(options[i].value, 10));
       }
     }
-    setFormState((prevState) => ({ ...prevState, [name]: selectedIds }));
+    setFormState((prevState) => ({ ...prevState, [name]: selectedIds.length > 0 ? selectedIds : null }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (
-      !formState.nombre ||
-      !formState.apellido ||
-      !formState.fechaNacimiento
-    ) {
-      alert("Por favor, completa nombre, apellido y fecha de nacimiento.");
+    if (!formState.nombre || !formState.apellido) {
+      alert("Por favor, completa nombre y apellido.");
       return;
     }
 
@@ -193,224 +189,156 @@ const Familia = () => {
       )}
 
       {isFormVisible && (
-        <form
-          onSubmit={handleSubmit}
-          className="mb-6 p-4 border rounded shadow-md grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50"
-        >
-          <h3 className="text-lg font-semibold col-span-1 md:col-span-2 mb-2 border-b pb-2">
+        <form onSubmit={handleSubmit} className="familia-form">
+          <h3 className="text-lg font-semibold mb-4">
             {editingId ? "Editar Familiar" : "Añadir Nuevo Familiar"}
           </h3>
-          {/* Column 1 */}
-          <div>
-            {/* Fields: Nombre, Apellido, Fecha Nacimiento, Status, Pais, Ciudad */}
-            {/* ... (Input fields remain the same as previous version) ... */}
-            <div className="mb-3">
-              <label
-                htmlFor="nombre"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Nombre:
-              </label>
-              <input
-                type="text"
-                id="nombre"
-                name="nombre"
-                value={formState.nombre}
-                onChange={handleInputChange}
-                required
-                className="input-style"
-                style={{ color: "black" }}
-              />
-            </div>
-            <div className="mb-3">
-              <label
-                htmlFor="apellido"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Apellido:
-              </label>
-              <input
-                type="text"
-                id="apellido"
-                name="apellido"
-                value={formState.apellido}
-                onChange={handleInputChange}
-                required
-                className="input-style"
-                style={{ color: "black" }}
-              />
-            </div>
-            <div className="mb-3">
-              <label
-                htmlFor="fechaNacimiento"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Fecha de Nacimiento:
-              </label>
-              <input
-                type="date"
-                id="fechaNacimiento"
-                name="fechaNacimiento"
-                value={formState.fechaNacimiento}
-                onChange={handleInputChange}
-                required
-                className="input-style"
-                style={{ color: "black" }}
-              />
-            </div>
-            {/* Status field removed */}
-            <div className="mb-3">
-              <label
-                htmlFor="pais"
-                className="block text-sm font-medium text-gray-700"
-              >
-                País:
-              </label>
-              <input
-                type="text"
-                id="pais"
-                name="pais"
-                value={formState.pais}
-                onChange={handleInputChange}
-                className="input-style"
-                style={{ color: "black" }}
-              />
-            </div>
-            <div className="mb-3">
-              <label
-                htmlFor="ciudad"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Ciudad:
-              </label>
-              <input
-                type="text"
-                id="ciudad"
-                name="ciudad"
-                value={formState.ciudad}
-                onChange={handleInputChange}
-                className="input-style"
-                style={{ color: "black" }}
-              />
-            </div>
-            {/* File Input for Photo */}
-            <div className="mb-3">
-              <label
-                htmlFor="foto"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Foto:
-              </label>
-              <input
-                type="file"
-                id="foto"
-                name="foto"
-                accept="image/*" // Accept only image files
-                onChange={handleFileChange}
-                className="input-style"
-              />
-              {/* Image Preview */}
-              {formState.fotoBase64 && (
-                <img
-                  src={formState.fotoBase64}
-                  alt="Vista previa"
-                  className="mt-2 h-20 w-20 object-cover rounded border"
-                />
-              )}
-            </div>
+          
+          {/* Datos personales */}
+          <div className="familia-form-group">
+            <label className="familia-form-label">Nombre:</label>
+            <input
+              type="text"
+              name="nombre"
+              value={formState.nombre}
+              onChange={handleInputChange}
+              required
+              className="familia-form-input"
+            />
           </div>
 
-          {/* Column 2 */}
-          <div>
-            {/* Conyuge Selector */}
-            <div className="mb-3">
-              <label
-                htmlFor="conyugeId"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Esposo/Esposa:
-              </label>
-              <select
-                id="conyugeId"
-                name="conyugeId"
-                value={formState.conyugeId === null ? "" : formState.conyugeId} // Handle null value for the '-- Ninguno --' option
-                onChange={handleInputChange}
-                className="input-style"
-              >
-                <option value="">-- No seleccionado --</option>{" "}
-                {/* Option for no selection */}
-                {otherFamiliares.map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.nombre} {f.apellido}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {/* Selectors for PadresIds and HijosIds */}
-            {/* ... (Selectors remain the same as previous version, but use otherFamiliares) ... */}
-            <div className="mb-3">
-              <label
-                htmlFor="padresIds"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Padre(s)/Madre(s) (Ctrl+Click):
-              </label>
-              <select
-                id="padresIds"
-                name="padresIds"
-                multiple={true}
-                value={formState.padresIds === null ? "" : formState.padresIds} // Value needs to be array of strings for multi-select
-                onChange={handleMultiSelectChange}
-                className="input-style h-24"
-              >
-                <option value="">-- No seleccionado --</option>
-                {otherFamiliares.map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.nombre} {f.apellido}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="mb-3">
-              <label
-                htmlFor="hijosIds"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Hijo(s)/Hija(s) (Ctrl+Click):
-              </label>
-              <select
-                id="hijosIds"
-                name="hijosIds"
-                multiple={true}
-                value={formState.hijosIds === null ? "" : formState.hijosIds}
-                onChange={handleMultiSelectChange}
-                className="input-style h-24"
-              >
-                <option value="">-- No seleccionado --</option>
-                {otherFamiliares.map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.nombre} {f.apellido}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="familia-form-group">
+            <label className="familia-form-label">Apellido:</label>
+            <input
+              type="text"
+              name="apellido"
+              value={formState.apellido}
+              onChange={handleInputChange}
+              required
+              className="familia-form-input"
+            />
+          </div>
 
-            {/* Buttons: Save and Cancel */}
-            <div className="col-span-1 md:col-span-2 mt-4 pt-4 border-t flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-              >
-                {editingId ? "Actualizar Familiar" : "Guardar Familiar"}
-              </button>
-            </div>
+          <div className="familia-form-group">
+            <label className="familia-form-label">Fecha de Nacimiento:</label>
+            <input
+              type="date"
+              name="fechaNacimiento"
+              value={formState.fechaNacimiento}
+              onChange={handleInputChange}
+              className="familia-form-input"
+            />
+          </div>
+
+          <div className="familia-form-group">
+            <label className="familia-form-label">País:</label>
+            <input
+              type="text"
+              name="pais"
+              value={formState.pais}
+              onChange={handleInputChange}
+              className="familia-form-input"
+            />
+          </div>
+
+          <div className="familia-form-group">
+            <label className="familia-form-label">Ciudad:</label>
+            <input
+              type="text"
+              name="ciudad"
+              value={formState.ciudad}
+              onChange={handleInputChange}
+              className="familia-form-input"
+            />
+          </div>
+
+          <div className="familia-form-group">
+            <label className="familia-form-label">Foto:</label>
+            <input
+              type="file"
+              name="foto"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="familia-form-input"
+            />
+            {formState.fotoBase64 && (
+              <img
+                src={formState.fotoBase64}
+                alt="Vista previa"
+                className="familia-form-preview"
+              />
+            )}
+          </div>
+
+          {/* Relaciones familiares */}
+          <div className="familia-form-group">
+            <label className="familia-form-label">Esposo/Esposa:</label>
+            <select
+              name="conyugeId"
+              value={formState.conyugeId === null ? "" : formState.conyugeId}
+              onChange={handleInputChange}
+              className="familia-form-input"
+            >
+              <option value="">-- No seleccionado --</option>
+              {otherFamiliares.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.nombre} {f.apellido}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="familia-form-group">
+            <label className="familia-form-label">Padre(s)/Madre(s):</label>
+            <select
+              name="padresIds"
+              multiple={true}
+              value={formState.padresIds || []}
+              onChange={handleMultiSelectChange}
+              className="familia-form-input h-24"
+            >
+              <option value="">-- No seleccionado --</option>
+              {otherFamiliares.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.nombre} {f.apellido}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="familia-form-group">
+            <label className="familia-form-label">Hijo(s)/Hija(s):</label>
+            <select
+              name="hijosIds"
+              multiple={true}
+              value={formState.hijosIds || []}
+              onChange={handleMultiSelectChange}
+              className="familia-form-input h-24"
+            >
+              <option value="">-- No seleccionado --</option>
+              {otherFamiliares.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.nombre} {f.apellido}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Botones */}
+          <div className="familia-form-buttons">
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="familia-form-button familia-form-button-cancel"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="familia-form-button"
+            >
+              {editingId ? "Actualizar Familiar" : "Guardar Familiar"}
+            </button>
           </div>
         </form>
       )}
@@ -444,29 +372,14 @@ const Familia = () => {
                   <Image
                     src={miembro.fotoBase64}
                     alt={`${miembro.nombre} ${miembro.apellido}`}
-                    style={{
-                      width: '300px',
-                      height: '300px',
-                      objectFit: 'cover',
-                      margin: '0 auto' // Centrar la imagen si es un bloque
-                    }}
+                    className="familia-photo"
                     thumbnail 
                   />
                 ) : (
                   <div
-                    style={{
-                      width: '300px',
-                      height: '300px',
-                      backgroundColor: '#e9ecef',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      border: '1px solid #dee2e6',
-                      borderRadius: '0.25rem',
-                      margin: '0 auto' // Centrar el placeholder
-                    }}
+                    className="familia-photo-placeholder"
                   >
-                    <span style={{ color: '#6c757d', fontSize: '1rem' }}>Foto</span>
+                    <span className="familia-photo-placeholder-text">Foto</span>
                   </div>
                 )}
               </div>
@@ -492,29 +405,33 @@ const Familia = () => {
                 {miembro.pais}
               </p>
 
-              {/* Display Parents */}
-              {miembro.padresIds && miembro.padresIds.length > 0 && (
+              {/* Display Parents only if they exist */}
+              {miembro.padresIds && miembro.padresIds.some(id => id !== null) && (
                 <div className="mt-2 pt-2 border-t">
                   <p className="text-xs font-semibold text-gray-500">Padres:</p>
                   <ul className="list-disc list-inside text-sm">
-                    {miembro.padresIds.map((parentId) => (
-                      <li key={parentId}>
-                        {getFamiliarNameById(parentId) || `ID: ${parentId}`}
-                      </li>
+                    {miembro.padresIds
+                      .filter(id => id !== null)
+                      .map((parentId) => (
+                        <li key={parentId}>
+                          {getFamiliarNameById(parentId)}
+                        </li>
                     ))}
                   </ul>
                 </div>
               )}
 
-              {/* Display Children */}
-              {miembro.hijosIds && miembro.hijosIds.length > 0 && (
+              {/* Display Children only if they exist */}
+              {miembro.hijosIds && miembro.hijosIds.some(id => id !== null) && (
                 <div className="mt-2 pt-2 border-t">
                   <p className="text-xs font-semibold text-gray-500">Hijos:</p>
                   <ul className="list-disc list-inside text-sm">
-                    {miembro.hijosIds.map((hijoId) => (
-                      <li key={hijoId}>
-                        {getFamiliarNameById(hijoId) || `ID: ${hijoId}`}
-                      </li>
+                    {miembro.hijosIds
+                      .filter(id => id !== null)
+                      .map((hijoId) => (
+                        <li key={hijoId}>
+                          {getFamiliarNameById(hijoId)}
+                        </li>
                     ))}
                   </ul>
                 </div>
@@ -525,35 +442,7 @@ const Familia = () => {
       ) : (
         <p className="text-gray-500">No hay familiares añadidos todavía.</p>
       )}
-      {/* Simple CSS for input fields */}
-      <style>{`
-        .input-style {
-          margin-top: 0.25rem;
-          display: block;
-          width: 100%;
-          padding: 0.5rem 0.75rem;
-          border: 1px solid #D1D5DB; /* gray-300 */
-          border-radius: 0.375rem; /* rounded-md */
-          box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-          appearance: none; /* Remove default styling */
-          background-color: white;
-        }
-        .input-style:focus {
-          outline: none;
-          border-color: #6366F1; /* indigo-500 */
-          box-shadow: 0 0 0 1px #6366F1; 
-        }
-        select.input-style {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.5rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
-            padding-right: 2.5rem;
-        }
-        select[multiple].input-style {
-            background-image: none; /* No arrow for multi-select */
-        }
-      `}</style>
+
     </div>
   );
 };
