@@ -14,7 +14,7 @@ const Arbol = () => {
 
   // Función para crear los datos del árbol genealógico
   const createFamilyTreeData = (familiares) => {
-    console.log("Iniciando creación del árbol con", familiares.length, "familiares");
+    console.log("Procesando árbol con", familiares.length, "familiares");
     
     // Crear un mapa para acceder rápidamente a los familiares por ID
     const familiaresMap = new Map();
@@ -33,18 +33,18 @@ const Arbol = () => {
         nombre: familiar.nombre,
         apellido: familiar.apellido,
         genero: familiar.genero || "desconocido", // Valor por defecto si no hay género
-        children: [],
-        esPareja: false,
-        parejaId: familiar.conyugeId,
         hijosIds: hijosIds,
-        padresIds: padresIds
+        padresIds: padresIds,
+        conyugeId: familiar.conyugeId,
+        esPareja: false,
+        parejaId: null,
+        children: []
       };
       
       familiaresMap.set(familiar.id, nodo);
-      console.log(`Creado nodo para ${familiar.nombre} con ID ${familiar.id}`);
     });
     
-    // Marcar nodos que son parte de una pareja
+    // Marcar nodos que son parte de una pareja (solo si se especifica conyugeId)
     familiares.forEach(familiar => {
       if (familiar.conyugeId && familiaresMap.has(familiar.conyugeId)) {
         const nodo = familiaresMap.get(familiar.id);
@@ -55,45 +55,79 @@ const Arbol = () => {
         nodo.parejaId = familiar.conyugeId;
         conyugeNodo.esPareja = true;
         conyugeNodo.parejaId = familiar.id;
-        
-        console.log(`Marcada pareja: ${nodo.nombre} y ${conyugeNodo.nombre}`);
       }
     });
     
-    // Añadir hijos a los padres
+    // Procesar relaciones padre-hijo (asegurando que cada hijo aparezca solo una vez)
+    // Primero, recopilamos todos los hijos y sus padres
+    const hijosPadres = new Map(); // Map<hijoId, Array<padreId>>
+    
+    // Recopilar padres desde padresIds
     familiares.forEach(familiar => {
-      if (familiar.hijosIds && familiar.hijosIds.length > 0) {
-        const hijosValidos = familiar.hijosIds.filter(id => id !== null && familiaresMap.has(id));
+      const hijoId = familiar.id;
+      
+      if (familiar.padresIds && familiar.padresIds.length > 0) {
+        if (!hijosPadres.has(hijoId)) {
+          hijosPadres.set(hijoId, []);
+        }
         
-        if (hijosValidos.length > 0) {
-          const padreNode = familiaresMap.get(familiar.id);
-          
-          hijosValidos.forEach(hijoId => {
-            const hijoNode = familiaresMap.get(hijoId);
-            
-            // Añadir hijo al padre
-            if (!padreNode.children.some(child => child.id === hijoId)) {
-              padreNode.children.push(hijoNode);
-              addedAsChild.add(hijoId);
-              console.log(`Añadido ${hijoNode.nombre} como hijo de ${padreNode.nombre}`);
+        familiar.padresIds.forEach(padreId => {
+          if (padreId && familiaresMap.has(padreId)) {
+            hijosPadres.get(hijoId).push(padreId);
+          }
+        });
+      }
+    });
+    
+    // Recopilar padres desde hijosIds
+    familiares.forEach(familiar => {
+      const padreId = familiar.id;
+      
+      if (familiar.hijosIds && familiar.hijosIds.length > 0) {
+        familiar.hijosIds.forEach(hijoId => {
+          if (hijoId && familiaresMap.has(hijoId)) {
+            if (!hijosPadres.has(hijoId)) {
+              hijosPadres.set(hijoId, []);
             }
-          });
+            
+            if (!hijosPadres.get(hijoId).includes(padreId)) {
+              hijosPadres.get(hijoId).push(padreId);
+            }
+          }
+        });
+      }
+    });
+    
+    // Ahora, para cada hijo, decidimos a qué padre asignarlo
+    hijosPadres.forEach((padresIds, hijoId) => {
+      if (padresIds.length > 0) {
+        const hijoNode = familiaresMap.get(hijoId);
+        
+        // Si hay más de un padre, elegimos uno para evitar duplicados
+        // Pero mantenemos la referencia a todos los padres para visualización
+        hijoNode.todosLosPadres = padresIds;
+        
+        // Elegimos el primer padre para asignar el hijo
+        const padreElegidoId = padresIds[0];
+        const padreNode = familiaresMap.get(padreElegidoId);
+        
+        // Añadir el hijo al padre
+        if (!padreNode.children.some(child => child.id === hijoId)) {
+          padreNode.children.push(hijoNode);
+          addedAsChild.add(hijoId);
         }
       }
     });
     
     // Encontrar las raíces (nodos que no son hijos de nadie)
     const roots = [];
-    
-    // Identificar nodos que no son hijos de nadie
     for (const [id, nodo] of familiaresMap.entries()) {
       if (!addedAsChild.has(id)) {
         roots.push(nodo);
-        console.log(`Añadido ${nodo.nombre} como raíz (no es hijo de nadie)`);
       }
     }
     
-    console.log(`Encontradas ${roots.length} raíces`);
+    console.log(`Encontradas ${roots.length} raíces:`, roots.map(r => r.nombre).join(", "));
     
     // Si hay múltiples raíces, crear un nodo raíz artificial
     if (roots.length > 1) {
@@ -102,14 +136,11 @@ const Arbol = () => {
         id: "root",
         children: roots
       };
-      console.log("Creado nodo raíz artificial con", roots.length, "hijos");
       return rootNode;
     } else if (roots.length === 1) {
-      console.log("Usando como raíz a", roots[0].nombre);
       return roots[0];
     } else {
       // Si no hay raíces (caso raro), devolver un nodo vacío
-      console.log("No se encontraron raíces, creando nodo vacío");
       return {
         nombre: "No hay datos",
         children: []
@@ -123,18 +154,6 @@ const Arbol = () => {
     // Limpiar el SVG antes de dibujar
     d3.select(svgRef.current).selectAll("*").remove();
 
-    // Imprimir los datos de los familiares para depuración
-    console.log("Datos de familiares:", familiares);
-    
-    // Imprimir información detallada de cada familiar
-    familiares.forEach(familiar => {
-      console.log(`Familiar: ${familiar.nombre} ${familiar.apellido} (ID: ${familiar.id})`);
-      console.log(`  - Género: ${familiar.genero}`);
-      console.log(`  - Cónyuge ID: ${familiar.conyugeId}`);
-      console.log(`  - Hijos IDs: ${JSON.stringify(familiar.hijosIds)}`);
-      console.log(`  - Padres IDs: ${JSON.stringify(familiar.padresIds)}`);
-    });
-    
     // Crear datos para el árbol
     const treeData = createFamilyTreeData(familiares);
     console.log("Datos del árbol:", treeData);
@@ -170,46 +189,79 @@ const Arbol = () => {
     // Asignar posiciones a cada nodo
     treeLayout(root);
 
-    // Dibujar las líneas de conexión
-    svg.selectAll(".link")
+    // Crear enlaces entre padres e hijos
+    svg.append("g")
+      .attr("class", "links")
+      .selectAll("path")
       .data(root.links())
-      .enter()
-      .append("path")
+      .enter().append("path")
       .attr("class", "link")
       .attr("d", d3.linkVertical()
         .x(d => d.x)
-        .y(d => d.y)
-      );
+        .y(d => d.y));
 
-    // Dibujar líneas especiales entre cónyuges
-    const parejasLinks = [];
+    // Crear enlaces adicionales para hijos con múltiples padres
+    const linksAdicionales = [];
+    
+    // Recopilar todos los enlaces adicionales para hijos con múltiples padres
     root.descendants().forEach(node => {
-      if (node.data.esPareja && node.data.parejaId) {
-        // Buscar el nodo de la pareja
-        const parejaNode = root.descendants().find(n => n.data.id === node.data.parejaId);
-        if (parejaNode && node.data.id < parejaNode.data.id) { // Evitar duplicados
+      // Si el nodo tiene múltiples padres
+      if (node.data.todosLosPadres && node.data.todosLosPadres.length > 1) {
+        // Para cada padre adicional (excepto el primero que ya está conectado)
+        for (let i = 1; i < node.data.todosLosPadres.length; i++) {
+          const padreId = node.data.todosLosPadres[i];
+          const padre = root.descendants().find(n => n.data.id === padreId);
+          
+          if (padre) {
+            linksAdicionales.push({
+              source: { x: padre.x, y: padre.y },
+              target: { x: node.x, y: node.y }
+            });
+          }
+        }
+      }
+    });
+    
+    // Añadir líneas adicionales para múltiples padres
+    svg.append("g")
+      .attr("class", "links-adicionales")
+      .selectAll("path")
+      .data(linksAdicionales)
+      .enter().append("path")
+      .attr("class", "link link-adicional")
+      .attr("d", d => {
+        const midY = (d.source.y + d.target.y) / 2;
+        return `M${d.source.x},${d.source.y} C${d.source.x},${midY} ${d.target.x},${midY} ${d.target.x},${d.target.y}`;
+      });
+
+    // Crear enlaces entre parejas (líneas punteadas)
+    const parejasLinks = [];
+    
+    // Recopilar todas las parejas
+    root.descendants().forEach(node => {
+      if (node.data.parejaId) {
+        const pareja = root.descendants().find(n => n.data.id === node.data.parejaId);
+        if (pareja && node.data.id < pareja.data.id) { // Evitar duplicados
           parejasLinks.push({
-            source: node,
-            target: parejaNode
+            source: { x: node.x, y: node.y },
+            target: { x: pareja.x, y: pareja.y }
           });
         }
       }
     });
-
-    // Dibujar líneas de corazón entre parejas
-    svg.selectAll(".link-pareja")
+    
+    // Añadir líneas punteadas entre parejas
+    svg.append("g")
+      .attr("class", "links-parejas")
+      .selectAll("path")
       .data(parejasLinks)
-      .enter()
-      .append("path")
+      .enter().append("path")
       .attr("class", "link-pareja")
       .attr("d", d => {
-        // Crear una línea curva entre las parejas
-        const midX = (d.source.x + d.target.x) / 2;
-        const midY = (d.source.y + d.target.y) / 2;
-        return `M${d.source.x},${d.source.y} Q${midX},${midY-15} ${d.target.x},${d.target.y}`;
+        return `M${d.source.x},${d.source.y}L${d.target.x},${d.target.y}`;
       });
-
-    // Dibujar corazones entre parejas
+      
+    // Añadir corazones entre parejas
     svg.selectAll(".heart")
       .data(parejasLinks)
       .enter()

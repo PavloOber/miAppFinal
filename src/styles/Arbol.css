@@ -20,11 +20,19 @@
   min-height: 800px;
 }
 
-/* Estilos para los enlaces entre nodos */
+/* Estilos para las líneas de conexión */
 .link {
   fill: none;
-  stroke: #999;
+  stroke: #cbd5e0;
   stroke-width: 2px;
+}
+
+/* Estilos para las líneas adicionales entre padres e hijos */
+.link-adicional {
+  fill: none;
+  stroke: #cbd5e0;
+  stroke-width: 2px;
+  stroke-dasharray: 3,3;
 }
 
 /* Estilos para enlaces de padres a hijos en parejas */
