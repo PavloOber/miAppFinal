@@ -12,6 +12,7 @@ import Familia from "./pages/Familia";
 import Gastos from "./pages/Gastos";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Arbol from "./pages/Arbol";
 import NotFoundPage from "./components/NotFoundPage"; // Import NotFoundPage
 
 function App() {
@@ -58,6 +59,15 @@ function App() {
                 element={
                   <AuthGuard>
                     <Familia />
+                  </AuthGuard>
+                }
+              />
+              
+              <Route
+                path="/arbol"
+                element={
+                  <AuthGuard>
+                    <Arbol />
                   </AuthGuard>
                 }
               />

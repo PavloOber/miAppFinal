@@ -39,6 +39,7 @@ const Familia = () => {
       fechaNacimiento: "",
       pais: "",
       ciudad: "",
+      genero: "", // Añadimos el campo de género
       padresIds: null,
       hijosIds: null,
       conyugeId: null,
@@ -63,6 +64,7 @@ const Familia = () => {
             : "",
           pais: familiarToEdit.pais || "",
           ciudad: familiarToEdit.ciudad || "",
+          genero: familiarToEdit.genero || "", // Cargar género
           padresIds: familiarToEdit.padresIds || [],
           hijosIds: familiarToEdit.hijosIds || [],
           conyugeId: familiarToEdit.conyugeId || null, // Load conyugeId
@@ -239,6 +241,20 @@ const Familia = () => {
               onChange={handleInputChange}
               className="familia-form-input"
             />
+          </div>
+
+          <div className="familia-form-group">
+            <label className="familia-form-label">Género:</label>
+            <select
+              name="genero"
+              value={formState.genero}
+              onChange={handleInputChange}
+              className="familia-form-input"
+            >
+              <option value="">Selecciona género</option>
+              <option value="hombre">Hombre</option>
+              <option value="mujer">Mujer</option>
+            </select>
           </div>
 
           <div className="familia-form-group">

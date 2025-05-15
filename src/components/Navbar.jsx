@@ -24,7 +24,10 @@ const Navbar = () => {
             <NavDropdown title="Datos" id="basic-nav-dropdown"> {/* Cambiado el título del dropdown */}
               <NavDropdown.Item as={Link} to="/gastos">Gastos</NavDropdown.Item>
               {userEmail && (
-                <NavDropdown.Item as={Link} to="/familia">Familia</NavDropdown.Item>
+                <>
+                  <NavDropdown.Item as={Link} to="/familia">Familia</NavDropdown.Item>
+                  <NavDropdown.Item as={Link} to="/arbol">Árbol Genealógico</NavDropdown.Item>
+                </>
               )}
             </NavDropdown>
           </Nav>

@@ -1,0 +1,129 @@
+.arbol-container {
+  padding: 20px;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.tree-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  overflow-x: auto;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.family-tree-svg {
+  min-width: 1000px;
+  min-height: 800px;
+}
+
+/* Estilos para los enlaces entre nodos */
+.link {
+  fill: none;
+  stroke: #999;
+  stroke-width: 2px;
+}
+
+/* Estilos para enlaces de padres a hijos en parejas */
+.parent-link {
+  fill: none;
+  stroke: #555;
+  stroke-width: 2.5px;
+  stroke-dasharray: none;
+}
+
+.node circle {
+  fill: #fff;
+  stroke: #4299e1;
+  stroke-width: 3px;
+}
+
+.node-root {
+  fill: #f0f4ff;
+  stroke: #3182ce;
+  stroke-width: 3px;
+}
+
+/* Estilos para hombres */
+.node-hombre {
+  fill: #e6f0ff; /* Azul claro más intenso */
+  stroke: #2b6cb0; /* Azul más oscuro */
+  stroke-width: 4px; /* Más grueso */
+  stroke-opacity: 1;
+}
+
+/* Estilos para mujeres */
+.node-mujer {
+  fill: #fce8f3; /* Rosa claro más intenso */
+  stroke: #b83280; /* Rosa más oscuro */
+  stroke-width: 4px; /* Más grueso */
+  stroke-opacity: 1;
+}
+
+/* Estilo genérico para personas (fallback) */
+.node-person {
+  fill: #f0f4f8;
+  stroke: #718096;
+  stroke-width: 3px;
+}
+
+/* Estilos para nodos de pareja */
+.node-pareja circle {
+  fill: #fff0f5; /* Color rosa claro para parejas */
+  stroke: #e83e8c;
+  stroke-width: 3px;
+}
+
+/* Estilos para el corazón */
+.heart-icon {
+  fill: #e53e3e;
+  font-weight: bold;
+}
+
+.gender-icon {
+  font-weight: bold;
+  font-size: 28px !important; /* Tamaño base aún más grande */
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.8); /* Sombra para mejor visibilidad */
+}
+
+/* Estilo para el símbolo masculino */
+.node-hombre + .gender-icon {
+  fill: #1a4a8d; /* Azul más oscuro para mejor contraste */
+  font-size: 28px !important;
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.9));
+}
+
+/* Estilo para el símbolo femenino */
+.node-mujer + .gender-icon {
+  fill: #9d2167; /* Rosa más oscuro para mejor contraste */
+  font-size: 32px !important; /* Aún más grande que el masculino */
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.9));
+}
+
+/* Estilos para los textos */
+.nombre-text {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  fill: #333;
+  font-weight: 500;
+}
+
+.apellido-text {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  fill: #666;
+}
+
+/* Estilos para dispositivos móviles */
+@media (max-width: 768px) {
+  .tree-wrapper {
+    padding: 10px;
+  }
+  
+  .family-tree-svg {
+    min-width: 800px;
+  }
+}
