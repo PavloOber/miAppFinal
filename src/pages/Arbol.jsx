@@ -139,8 +139,26 @@ const Arbol = () => {
       .attr("transform", d => `translate(${d.x},${d.y})`);
 
     // Dibujar círculos para los nodos
-    nodes.append("circle")
-      .attr("r", 30);
+    nodes.each(function(d) {
+      const node = d3.select(this);
+      
+      if (d.data.type === "pareja") {
+        // Para parejas, dibujamos dos círculos
+        node.append("circle")
+          .attr("r", 30)
+          .attr("cx", -30)  // Primer círculo a la izquierda
+          .attr("class", "circle-miembro1");
+          
+        node.append("circle")
+          .attr("r", 30)
+          .attr("cx", 30)   // Segundo círculo a la derecha
+          .attr("class", "circle-miembro2");
+      } else {
+        // Para personas individuales, un solo círculo
+        node.append("circle")
+          .attr("r", 30);
+      }
+    });
 
     // Añadir nombres a los nodos
     nodes.each(function(d) {
@@ -252,6 +270,7 @@ const Arbol = () => {
     const parejasMap = new Map();
     const personaAParejaMap = new Map();
     const processedChildren = new Set();
+    const addedToTree = new Set(); // Conjunto para rastrear nodos ya añadidos al árbol
 
     // Crear nodos para cada familiar
     familiares.forEach(familiar => {
@@ -268,18 +287,8 @@ const Arbol = () => {
       });
     });
 
-    // Identificar a Pavlo y Daryna por sus IDs exactos (según los logs)
-    const pavloId = 1747122709799;
-    const darynaId = 1747119596211;
-    const valentinId = 1747216481893;
-    const tatianaId = 1747301231734;
-    
-    console.log("IDs identificados:", {
-      pavloId,
-      darynaId,
-      valentinId,
-      tatianaId
-    });
+    // No usaremos IDs hardcodeados, sino que trabajaremos con los datos reales
+    console.log("Procesando datos de familiares para el árbol");
 
     // Crear nodos para parejas
     familiares.forEach(familiar => {
@@ -291,15 +300,24 @@ const Arbol = () => {
           
           // Solo crear la pareja si no existe ya
           if (!parejasMap.has(parejaId)) {
-            // Asegurarse de que el hombre esté a la izquierda y la mujer a la derecha
+            // Intentar colocar hombre a la izquierda y mujer a la derecha si tienen género definido
             let miembro1, miembro2;
             
-            if (familiar.genero === 'hombre') {
+            if (familiar.genero === 'hombre' && conyuge.genero === 'mujer') {
               miembro1 = familiaresMap.get(familiar.id);
               miembro2 = familiaresMap.get(conyuge.id);
-            } else {
+            } else if (familiar.genero === 'mujer' && conyuge.genero === 'hombre') {
               miembro1 = familiaresMap.get(conyuge.id);
               miembro2 = familiaresMap.get(familiar.id);
+            } else {
+              // Si no tienen género definido o ambos son del mismo género, usar orden alfabético
+              if (familiar.nombre.localeCompare(conyuge.nombre) <= 0) {
+                miembro1 = familiaresMap.get(familiar.id);
+                miembro2 = familiaresMap.get(conyuge.id);
+              } else {
+                miembro1 = familiaresMap.get(conyuge.id);
+                miembro2 = familiaresMap.get(familiar.id);
+              }
             }
             
             const pareja = {
@@ -321,15 +339,12 @@ const Arbol = () => {
       }
     });
 
-    // Obtener la pareja de Pavlo y Daryna
-    const pavloDarynaId = `pareja_${Math.min(pavloId, darynaId)}_${Math.max(pavloId, darynaId)}`;
-    const pavloDarynaPareja = parejasMap.get(pavloDarynaId);
-    
-    if (pavloDarynaPareja) {
-      console.log("Pareja de Pavlo y Daryna encontrada:", pavloDarynaPareja);
-    } else {
-      console.log("No se encontró la pareja de Pavlo y Daryna");
-    }
+    // Encontrar todas las parejas
+    const todasLasParejas = Array.from(parejasMap.values());
+    console.log("Parejas encontradas:", todasLasParejas.length);
+    todasLasParejas.forEach(pareja => {
+      console.log(`Pareja: ${pareja.nombre} (ID: ${pareja.id})`);
+    });
 
     // Raíces del árbol (nodos sin padres)
     const roots = [];
@@ -350,14 +365,18 @@ const Arbol = () => {
               // Verificar si ya procesamos esta relación
               const relacion = `${parejaId}_${hijoId}`;
               if (!processedChildren.has(relacion)) {
-                pareja.children.push(hijoNode);
-                processedChildren.add(relacion);
-                console.log(`Añadido hijo ${hijoNode.nombre} a la pareja ${pareja.nombre}`);
-                
-                // Si el hijo estaba en roots, lo quitamos porque ahora tiene padres
-                const hijoIndex = roots.findIndex(r => r.id === hijoId);
-                if (hijoIndex !== -1) {
-                  roots.splice(hijoIndex, 1);
+                // Solo añadir si el hijo no está ya en el árbol
+                if (!addedToTree.has(hijoId)) {
+                  pareja.children.push(hijoNode);
+                  addedToTree.add(hijoId); // Marcar como añadido
+                  processedChildren.add(relacion);
+                  console.log(`Añadido hijo ${hijoNode.nombre} a la pareja ${pareja.nombre}`);
+                  
+                  // Si el hijo estaba en roots, lo quitamos porque ahora tiene padres
+                  const hijoIndex = roots.findIndex(r => r.id === hijoId);
+                  if (hijoIndex !== -1) {
+                    roots.splice(hijoIndex, 1);
+                  }
                 }
               }
             }
@@ -371,8 +390,9 @@ const Arbol = () => {
               const familiarNode = familiaresMap.get(familiar.id);
               
               // Añadir el hijo al familiar
-              if (!familiarNode.children.some(c => c.id === hijoId)) {
+              if (!familiarNode.children.some(c => c.id === hijoId) && !addedToTree.has(hijoId)) {
                 familiarNode.children.push(hijoNode);
+                addedToTree.add(hijoId); // Marcar como añadido
                 console.log(`Añadido hijo ${hijoNode.nombre} a ${familiar.nombre}`);
                 
                 // Si el hijo estaba en roots, lo quitamos porque ahora tiene padres
@@ -386,76 +406,68 @@ const Arbol = () => {
         }
       }
     });
+    
+    // Procesar conexiones para parejas
+    todasLasParejas.forEach(pareja => {
+      // Obtener los IDs de los miembros de la pareja
+      const miembro1Id = pareja.miembros[0].id;
+      const miembro2Id = pareja.miembros[1].id;
+      
+      // Buscar padres del primer miembro
+      const miembro1 = familiares.find(f => f.id === miembro1Id);
+      if (miembro1 && miembro1.padresIds && miembro1.padresIds.length > 0) {
+        miembro1.padresIds.forEach(padreId => {
+          if (familiaresMap.has(padreId) && !addedToTree.has(padreId)) {
+            pareja.parentLinks.push({
+              parentId: padreId,
+              isFirstMember: true // Conexión al primer miembro
+            });
+            console.log(`Conexión: ${familiaresMap.get(padreId).nombre} es padre/madre de ${miembro1.nombre} en la pareja`);
+          }
+        });
+      }
+      
+      // Buscar padres del segundo miembro
+      const miembro2 = familiares.find(f => f.id === miembro2Id);
+      if (miembro2 && miembro2.padresIds && miembro2.padresIds.length > 0) {
+        miembro2.padresIds.forEach(padreId => {
+          if (familiaresMap.has(padreId) && !addedToTree.has(padreId)) {
+            pareja.parentLinks.push({
+              parentId: padreId,
+              isFirstMember: false // Conexión al segundo miembro
+            });
+            console.log(`Conexión: ${familiaresMap.get(padreId).nombre} es padre/madre de ${miembro2.nombre} en la pareja`);
+          }
+        });
+      }
+      
+      // Añadir la pareja como raíz si no está ya añadida
+      if (!addedToTree.has(pareja.id)) {
+        roots.push(pareja);
+        addedToTree.add(pareja.id);
+        console.log(`Añadida pareja ${pareja.nombre} como raíz`);
+      }
+    });
+    
+    // Añadir personas sin pareja como raíces si tienen hijos
+    familiares.forEach(familiar => {
+      if (!familiar.conyugeId && familiar.hijosIds && familiar.hijosIds.length > 0 && !addedToTree.has(familiar.id)) {
+        const familiarNode = familiaresMap.get(familiar.id);
+        roots.push(familiarNode);
+        addedToTree.add(familiar.id);
+        console.log(`Añadido ${familiar.nombre} como raíz (tiene hijos pero no pareja)`);
+      }
+    });
 
-    // Procesar conexiones especiales de Valentin a Pavlo y Tatiana a Daryna
-    if (pavloDarynaPareja) {
-      // Conexión de Valentin a Pavlo
-      if (familiaresMap.has(valentinId)) {
-        pavloDarynaPareja.parentLinks.push({
-          parentId: valentinId,
-          isFirstMember: true  // Pavlo siempre es el primer miembro (izquierda)
-        });
-        
-        console.log("Conexión especial: Valentin es padre de Pavlo en la pareja");
+    // Añadir otros familiares que no hayan sido añadidos aún
+    familiares.forEach(familiar => {
+      if (!addedToTree.has(familiar.id)) {
+        const familiarNode = familiaresMap.get(familiar.id);
+        roots.push(familiarNode);
+        addedToTree.add(familiar.id);
+        console.log(`Añadido ${familiar.nombre} como raíz individual (no procesado previamente)`);
       }
-      
-      // Conexión de Tatiana a Daryna
-      if (familiaresMap.has(tatianaId)) {
-        pavloDarynaPareja.parentLinks.push({
-          parentId: tatianaId,
-          isFirstMember: false  // Daryna siempre es el segundo miembro (derecha)
-        });
-        
-        console.log("Conexión especial: Tatiana es madre de Daryna en la pareja");
-      }
-      
-      // Añadir la pareja como raíz principal
-      roots.push(pavloDarynaPareja);
-      console.log("Añadida pareja Pavlo y Daryna como raíz principal");
-      
-      // Añadir a Valentin y Tatiana como raíces
-      if (familiaresMap.has(valentinId)) {
-        const valentinNode = familiaresMap.get(valentinId);
-        roots.push(valentinNode);
-        console.log("Añadido Valentin como raíz");
-      }
-      
-      if (familiaresMap.has(tatianaId)) {
-        const tatianaNode = familiaresMap.get(tatianaId);
-        roots.push(tatianaNode);
-        console.log("Añadida Tatiana como raíz");
-      }
-    } else {
-      // Si no encontramos la pareja, añadir a todos como raíces individuales
-      
-      // Añadir a Pavlo como raíz si existe
-      if (familiaresMap.has(pavloId)) {
-        const pavloNode = familiaresMap.get(pavloId);
-        roots.push(pavloNode);
-        console.log("Añadido Pavlo como raíz individual (no se encontró pareja)");
-      }
-      
-      // Añadir a Daryna como raíz si existe
-      if (familiaresMap.has(darynaId)) {
-        const darynaNode = familiaresMap.get(darynaId);
-        roots.push(darynaNode);
-        console.log("Añadida Daryna como raíz individual (no se encontró pareja)");
-      }
-      
-      // Añadir a Valentin como raíz si existe
-      if (familiaresMap.has(valentinId)) {
-        const valentinNode = familiaresMap.get(valentinId);
-        roots.push(valentinNode);
-        console.log("Añadido Valentin como raíz individual");
-      }
-      
-      // Añadir a Tatiana como raíz si existe
-      if (familiaresMap.has(tatianaId)) {
-        const tatianaNode = familiaresMap.get(tatianaId);
-        roots.push(tatianaNode);
-        console.log("Añadida Tatiana como raíz individual");
-      }
-    }
+    });
 
     // Si hay múltiples raíces, crear un nodo raíz artificial
     if (roots.length > 1) {

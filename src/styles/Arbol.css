@@ -71,9 +71,15 @@
 }
 
 /* Estilos para nodos de pareja */
-.node-pareja circle {
-  fill: #fff0f5; /* Color rosa claro para parejas */
-  stroke: #e83e8c;
+.node-pareja .circle-miembro1 {
+  fill: #e6f0ff; /* Azul claro para hombres */
+  stroke: #2b6cb0;
+  stroke-width: 3px;
+}
+
+.node-pareja .circle-miembro2 {
+  fill: #fce8f3; /* Rosa claro para mujeres */
+  stroke: #b83280;
   stroke-width: 3px;
 }
 
