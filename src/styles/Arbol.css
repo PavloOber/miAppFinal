@@ -36,9 +36,16 @@
 }
 
 .node circle {
-  fill: #fff;
+  fill: #f8f9fa;
   stroke: #4299e1;
   stroke-width: 3px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.node:hover circle {
+  stroke-width: 5px;
+  filter: drop-shadow(0 0 5px rgba(66, 153, 225, 0.5));
 }
 
 .node-root {
@@ -48,7 +55,7 @@
 }
 
 /* Estilos para hombres */
-.node-hombre {
+.node-hombre circle {
   fill: #e6f0ff; /* Azul claro más intenso */
   stroke: #2b6cb0; /* Azul más oscuro */
   stroke-width: 4px; /* Más grueso */
@@ -56,7 +63,7 @@
 }
 
 /* Estilos para mujeres */
-.node-mujer {
+.node-mujer circle {
   fill: #fce8f3; /* Rosa claro más intenso */
   stroke: #b83280; /* Rosa más oscuro */
   stroke-width: 4px; /* Más grueso */
@@ -68,6 +75,14 @@
   fill: #f0f4f8;
   stroke: #718096;
   stroke-width: 3px;
+}
+
+/* Estilos para nodos con género desconocido */
+.node-desconocido circle {
+  fill: #f7fafc;
+  stroke: #718096;
+  stroke-width: 3px;
+  stroke-dasharray: 5,3;
 }
 
 /* Estilos para nodos de pareja */
@@ -84,28 +99,48 @@
 }
 
 /* Estilos para el corazón */
-.heart-icon {
+.heart-symbol {
   fill: #e53e3e;
   font-weight: bold;
+  font-size: 18px;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+  animation: heartbeat 1.5s infinite;
 }
 
-.gender-icon {
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  15% { transform: scale(1.2); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.2); }
+  60% { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+
+.gender-symbol {
   font-weight: bold;
-  font-size: 28px !important; /* Tamaño base aún más grande */
+  font-size: 24px;
   text-shadow: 0 0 2px rgba(255, 255, 255, 0.8); /* Sombra para mejor visibilidad */
 }
 
 /* Estilo para el símbolo masculino */
-.node-hombre + .gender-icon {
+.gender-symbol.male {
   fill: #1a4a8d; /* Azul más oscuro para mejor contraste */
-  font-size: 28px !important;
+  font-size: 24px;
   filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.9));
 }
 
 /* Estilo para el símbolo femenino */
-.node-mujer + .gender-icon {
+.gender-symbol.female {
   fill: #9d2167; /* Rosa más oscuro para mejor contraste */
-  font-size: 32px !important; /* Aún más grande que el masculino */
+  font-size: 24px;
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.9));
+}
+
+/* Estilo para el símbolo de género desconocido */
+.gender-symbol.unknown {
+  fill: #718096;
+  font-size: 20px;
+  font-weight: bold;
   filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.9));
 }
 
@@ -132,4 +167,36 @@
   .family-tree-svg {
     min-width: 800px;
   }
+}
+
+/* Estilos para las líneas entre parejas */
+.link-pareja {
+  fill: none;
+  stroke: #e53e3e;
+  stroke-width: 2px;
+  stroke-dasharray: 5,3;
+  animation: dash 15s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: 100;
+  }
+}
+
+/* Estilos para el contenedor SVG */
+.arbol-svg-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  overflow-x: auto;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.arbol-svg {
+  min-width: 1000px;
+  min-height: 800px;
 }

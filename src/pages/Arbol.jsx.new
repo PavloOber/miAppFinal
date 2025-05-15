@@ -14,34 +14,25 @@ const Arbol = () => {
 
   // Función para crear los datos del árbol genealógico
   const createFamilyTreeData = (familiares) => {
-    console.log("Iniciando creación del árbol con", familiares.length, "familiares");
-    
     // Crear un mapa para acceder rápidamente a los familiares por ID
     const familiaresMap = new Map();
     
-    // Conjunto para rastrear los IDs que ya han sido añadidos como hijos
-    const addedAsChild = new Set();
+    // Conjunto para rastrear los IDs que ya han sido añadidos al árbol
+    const addedToTree = new Set();
     
     // Crear nodos para cada familiar
     familiares.forEach(familiar => {
-      // Filtrar valores nulos en los arrays
-      const hijosIds = familiar.hijosIds ? familiar.hijosIds.filter(id => id !== null) : [];
-      const padresIds = familiar.padresIds ? familiar.padresIds.filter(id => id !== null) : [];
-      
       const nodo = {
         id: familiar.id,
         nombre: familiar.nombre,
         apellido: familiar.apellido,
-        genero: familiar.genero || "desconocido", // Valor por defecto si no hay género
+        genero: familiar.genero,
         children: [],
         esPareja: false,
-        parejaId: familiar.conyugeId,
-        hijosIds: hijosIds,
-        padresIds: padresIds
+        parejaId: familiar.conyugeId
       };
       
       familiaresMap.set(familiar.id, nodo);
-      console.log(`Creado nodo para ${familiar.nombre} con ID ${familiar.id}`);
     });
     
     // Marcar nodos que son parte de una pareja
@@ -63,53 +54,61 @@ const Arbol = () => {
     // Añadir hijos a los padres
     familiares.forEach(familiar => {
       if (familiar.hijosIds && familiar.hijosIds.length > 0) {
-        const hijosValidos = familiar.hijosIds.filter(id => id !== null && familiaresMap.has(id));
+        const padreNode = familiaresMap.get(familiar.id);
         
-        if (hijosValidos.length > 0) {
-          const padreNode = familiaresMap.get(familiar.id);
-          
-          hijosValidos.forEach(hijoId => {
+        familiar.hijosIds.forEach(hijoId => {
+          if (familiaresMap.has(hijoId)) {
             const hijoNode = familiaresMap.get(hijoId);
             
             // Añadir hijo al padre
-            if (!padreNode.children.some(child => child.id === hijoId)) {
-              padreNode.children.push(hijoNode);
-              addedAsChild.add(hijoId);
-              console.log(`Añadido ${hijoNode.nombre} como hijo de ${padreNode.nombre}`);
-            }
-          });
-        }
+            padreNode.children.push(hijoNode);
+            
+            // Marcar como añadido al árbol
+            addedToTree.add(hijoId);
+            
+            console.log(`Añadido ${hijoNode.nombre} como hijo de ${padreNode.nombre}`);
+          }
+        });
+        
+        // Marcar al padre como añadido al árbol
+        addedToTree.add(familiar.id);
       }
     });
     
     // Encontrar las raíces (nodos que no son hijos de nadie)
     const roots = [];
     
-    // Identificar nodos que no son hijos de nadie
-    for (const [id, nodo] of familiaresMap.entries()) {
-      if (!addedAsChild.has(id)) {
-        roots.push(nodo);
-        console.log(`Añadido ${nodo.nombre} como raíz (no es hijo de nadie)`);
+    // Primero añadir nodos que tienen hijos pero no han sido añadidos como hijos de otros
+    familiares.forEach(familiar => {
+      if (!addedToTree.has(familiar.id) && familiar.hijosIds && familiar.hijosIds.length > 0) {
+        const familiarNode = familiaresMap.get(familiar.id);
+        roots.push(familiarNode);
+        addedToTree.add(familiar.id);
+        console.log(`Añadido ${familiar.nombre} como raíz (tiene hijos)`);
       }
-    }
+    });
     
-    console.log(`Encontradas ${roots.length} raíces`);
-    
+    // Luego añadir cualquier nodo que no haya sido procesado
+    familiares.forEach(familiar => {
+      if (!addedToTree.has(familiar.id)) {
+        const familiarNode = familiaresMap.get(familiar.id);
+        roots.push(familiarNode);
+        addedToTree.add(familiar.id);
+        console.log(`Añadido ${familiar.nombre} como raíz individual (no procesado previamente)`);
+      }
+    });
+
     // Si hay múltiples raíces, crear un nodo raíz artificial
     if (roots.length > 1) {
-      const rootNode = {
+      return {
         nombre: "Familia",
         id: "root",
         children: roots
       };
-      console.log("Creado nodo raíz artificial con", roots.length, "hijos");
-      return rootNode;
     } else if (roots.length === 1) {
-      console.log("Usando como raíz a", roots[0].nombre);
       return roots[0];
     } else {
       // Si no hay raíces (caso raro), devolver un nodo vacío
-      console.log("No se encontraron raíces, creando nodo vacío");
       return {
         nombre: "No hay datos",
         children: []
@@ -230,7 +229,6 @@ const Arbol = () => {
         if (d.data.esPareja) classes += " node-pareja";
         if (d.data.genero === "hombre") classes += " node-hombre";
         if (d.data.genero === "mujer") classes += " node-mujer";
-        if (d.data.genero === "desconocido" || !d.data.genero) classes += " node-desconocido";
         return classes;
       })
       .attr("transform", d => `translate(${d.x},${d.y})`);
@@ -259,22 +257,6 @@ const Arbol = () => {
           .attr("dy", -40)
           .attr("text-anchor", "middle")
           .text(FEMALE_SYMBOL);
-      } else {
-        // Símbolo de interrogación para género desconocido
-        d3.select(this).append("text")
-          .attr("class", "gender-symbol unknown")
-          .attr("dy", -40)
-          .attr("text-anchor", "middle")
-          .text("?");
-      }
-      
-      // Añadir apellido debajo del nombre
-      if (d.data.apellido) {
-        d3.select(this).append("text")
-          .attr("dy", 70)
-          .attr("text-anchor", "middle")
-          .attr("class", "apellido-text")
-          .text(d.data.apellido);
       }
     });
   }, [familiares]);
