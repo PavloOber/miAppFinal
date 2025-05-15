@@ -161,33 +161,112 @@ const Arbol = () => {
     // Configurar el árbol
     const width = 1000;
     const height = 800;
-    const margin = { top: 40, right: 90, bottom: 50, left: 90 };
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
-
-    // Crear el contenedor SVG
+    const nodeSize = 60;
+    
+    // Identificar parejas y padres compartidos
+    const parejas = new Map();
+    const padresCompartidos = new Map();
+    
+    // Identificar parejas por cónyuges
+    familiares.forEach(familiar => {
+      if (familiar.conyugeId) {
+        parejas.set(familiar.id, familiar.conyugeId);
+        parejas.set(familiar.conyugeId, familiar.id);
+      }
+    });
+    
+    // Identificar padres que comparten hijos
+    familiares.forEach(familiar => {
+      if (familiar.hijosIds && familiar.hijosIds.length > 0) {
+        familiar.hijosIds.forEach(hijoId => {
+          if (!padresCompartidos.has(hijoId)) {
+            padresCompartidos.set(hijoId, new Set());
+          }
+          padresCompartidos.get(hijoId).add(familiar.id);
+        });
+      }
+    });
+    
+    // Crear el layout del árbol
+    const treeLayout = d3.tree()
+      .nodeSize([nodeSize * 2, nodeSize * 3])
+      .separation((a, b) => {
+        // Si son pareja formal (con conyugeId), colocarlos muy cerca
+        if (a.data.parejaId === b.data.id || b.data.parejaId === a.data.id) {
+          return 1.1; // Muy cerca para parejas formales
+        }
+        
+        // Nodos del mismo nivel con el mismo padre
+        if (a.parent === b.parent) {
+          return 1.5;
+        }
+        
+        // Nodos no relacionados
+        return 2.5;
+      });
+    
+    // Crear el SVG
     const svg = d3.select(svgRef.current)
       .attr("width", width)
       .attr("height", height)
       .append("g")
-      .attr("transform", `translate(${margin.left},${margin.top})`);
-
-    // Crear el layout del árbol
-    const treeLayout = d3.tree()
-      .size([innerWidth, innerHeight])
-      .separation((a, b) => {
-        // Aumentar la separación entre nodos que son pareja
-        if (a.data.esPareja && b.data.esPareja && a.data.parejaId === b.data.id) {
-          return 1.2; // Parejas más juntas
-        }
-        return a.parent === b.parent ? 1.5 : 2.5;
-      });
+      .attr("transform", `translate(${width / 2}, 50)`);
+    
+    // Crear la jerarquía de datos
 
     // Crear la jerarquía del árbol
     const root = d3.hierarchy(treeData);
     
     // Asignar posiciones a cada nodo
     treeLayout(root);
+    
+    // Crear un mapa de padres que comparten hijos
+    const padresQueCompartenHijos = new Map();
+    
+    // Identificar padres que comparten hijos
+    familiares.forEach(familiar => {
+      if (familiar.hijosIds && familiar.hijosIds.length > 0) {
+        familiar.hijosIds.forEach(hijoId => {
+          if (!padresQueCompartenHijos.has(hijoId)) {
+            padresQueCompartenHijos.set(hijoId, []);
+          }
+          padresQueCompartenHijos.get(hijoId).push(familiar.id);
+        });
+      }
+    });
+    
+    // Crear pares de padres que comparten hijos
+    const paresDePadres = [];
+    padresQueCompartenHijos.forEach((padresIds) => {
+      if (padresIds.length >= 2) {
+        for (let i = 0; i < padresIds.length; i++) {
+          for (let j = i + 1; j < padresIds.length; j++) {
+            paresDePadres.push([padresIds[i], padresIds[j]]);
+          }
+        }
+      }
+    });
+    
+    // Ajustar posiciones para que las parejas y padres que comparten hijos estén más cerca
+    root.descendants().forEach(node => {
+      // Primero, ajustar parejas formales (con conyugeId)
+      if (node.data.parejaId) {
+        const pareja = root.descendants().find(n => n.data.id === node.data.parejaId);
+        if (pareja && node.depth === pareja.depth) {
+          // Ajustar posiciones horizontales para acercarlos
+          const midX = (node.x + pareja.x) / 2;
+          const offset = nodeSize * 0.6;
+          
+          if (node.x < pareja.x) {
+            node.x = midX - offset;
+            pareja.x = midX + offset;
+          } else {
+            node.x = midX + offset;
+            pareja.x = midX - offset;
+          }
+        }
+      }
+    });
 
     // Crear enlaces entre padres e hijos
     svg.append("g")
@@ -257,6 +336,36 @@ const Arbol = () => {
       .data(parejasLinks)
       .enter().append("path")
       .attr("class", "link-pareja")
+      .attr("d", d => {
+        return `M${d.source.x},${d.source.y}L${d.target.x},${d.target.y}`;
+      });
+      
+    // Añadir líneas entre padres que comparten hijos pero no son pareja formal
+    const padresCompartidosLinks = [];
+    
+    // Recopilar enlaces entre padres que comparten hijos
+    paresDePadres.forEach(([padre1Id, padre2Id]) => {
+      const padre1Node = root.descendants().find(n => n.data.id === padre1Id);
+      const padre2Node = root.descendants().find(n => n.data.id === padre2Id);
+      
+      // Si ambos padres existen y no son pareja formal
+      if (padre1Node && padre2Node && 
+          padre1Node.data.parejaId !== padre2Id) {
+        
+        padresCompartidosLinks.push({
+          source: { x: padre1Node.x, y: padre1Node.y },
+          target: { x: padre2Node.x, y: padre2Node.y }
+        });
+      }
+    });
+    
+    // Añadir líneas entre padres que comparten hijos
+    svg.append("g")
+      .attr("class", "links-padres-compartidos")
+      .selectAll("path")
+      .data(padresCompartidosLinks)
+      .enter().append("path")
+      .attr("class", "link-padres-compartidos")
       .attr("d", d => {
         return `M${d.source.x},${d.source.y}L${d.target.x},${d.target.y}`;
       });

@@ -186,6 +186,16 @@
   animation: dash 15s linear infinite;
 }
 
+/* Estilos para las líneas entre padres que comparten hijos */
+.link-padres-compartidos {
+  fill: none;
+  stroke: #805ad5; /* Color morado */
+  stroke-width: 1.5px;
+  stroke-dasharray: 2,2;
+  opacity: 0.6;
+  animation: dash 20s linear infinite;
+}
+
 @keyframes dash {
   to {
     stroke-dashoffset: 100;
