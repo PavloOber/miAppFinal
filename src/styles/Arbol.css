@@ -16,8 +16,10 @@
 }
 
 .family-tree-svg {
-  min-width: 1000px;
-  min-height: 800px;
+  min-width: 1600px;
+  min-height: 1200px;
+  width: 100%;
+  max-width: none;
 }
 
 /* Estilos para las líneas de conexión */

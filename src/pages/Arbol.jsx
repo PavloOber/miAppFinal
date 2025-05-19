@@ -159,9 +159,9 @@ const Arbol = () => {
     console.log("Datos del árbol:", treeData);
 
     // Configurar el árbol
-    const width = 1000;
-    const height = 800;
-    const nodeSize = 60;
+    const width = 1600; // Increased width
+    const height = 1200; // Increased height
+    const nodeSize = 70; // Slightly larger nodes
     
     // Identificar parejas y padres compartidos
     const parejas = new Map();
@@ -189,15 +189,15 @@ const Arbol = () => {
     
     // Crear el layout del árbol
     const treeLayout = d3.tree()
-      .nodeSize([nodeSize * 2, nodeSize * 3])
+      .nodeSize([nodeSize * 2.5, nodeSize * 5])  // Even more vertical spacing
       .separation((a, b) => {
         // Si son pareja formal (con conyugeId), colocarlos muy cerca
         if (a.data.parejaId === b.data.id || b.data.parejaId === a.data.id) {
           return 1.1; // Muy cerca para parejas formales
         }
         
-        // Nodos del mismo nivel con el mismo padre
-        if (a.parent === b.parent) {
+        // Asegurar que los hijos estén más abajo que sus padres
+        if (a.parent && b.parent && a.parent === b.parent) {
           return 1.5;
         }
         
@@ -248,23 +248,38 @@ const Arbol = () => {
     });
     
     // Ajustar posiciones para que las parejas y padres que comparten hijos estén más cerca
+    const spousePairs = new Set(); // Para evitar procesar la misma pareja dos veces
+    
     root.descendants().forEach(node => {
       // Primero, ajustar parejas formales (con conyugeId)
-      if (node.data.parejaId) {
+      if (node.data.parejaId && !spousePairs.has(node.data.id)) {
         const pareja = root.descendants().find(n => n.data.id === node.data.parejaId);
-        if (pareja && node.depth === pareja.depth) {
-          // Ajustar posiciones horizontales para acercarlos
-          const midX = (node.x + pareja.x) / 2;
-          const offset = nodeSize * 0.6;
+        
+        if (pareja) {
+          // Marcar ambos nodos como procesados
+          spousePairs.add(node.data.id);
+          spousePairs.add(pareja.data.id);
           
-          if (node.x < pareja.x) {
-            node.x = midX - offset;
-            pareja.x = midX + offset;
+          // Asegurar que ambos nodos estén en el mismo nivel vertical
+          node.y = pareja.y = Math.min(node.y, pareja.y);
+          
+          // Colocar parejas muy cerca, casi pegadas
+          const horizontalSpacing = nodeSize * 0.5; // Reducir el espacio entre parejas
+          
+          // Decidir quién va a la izquierda basado en el ID para consistencia
+          if (node.data.id < pareja.data.id) {
+            node.x = node.x - horizontalSpacing;
+            pareja.x = node.x + nodeSize * 1.2; // Un poco más separados que antes
           } else {
-            node.x = midX + offset;
-            pareja.x = midX - offset;
+            pareja.x = pareja.x - horizontalSpacing;
+            node.x = pareja.x + nodeSize * 1.2;
           }
         }
+      }
+      
+      // Asegurar que los hijos estén más abajo que sus padres
+      if (node.parent) {
+        node.y = Math.max(node.y, node.parent.y + nodeSize * 4.5); // Increased vertical spacing
       }
     });
 
